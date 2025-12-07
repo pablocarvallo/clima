@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Clima Pelotillehue</title>
+    <title>Clima Pelotillehue - Edición Mundial</title>
     
     <!-- PWA Meta Tags para iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +28,7 @@
             background-color: #f0f0f0;
             background-image: radial-gradient(#ccc 1px, transparent 1px);
             background-size: 20px 20px;
-            overscroll-behavior-y: none; /* Previene rebote en iOS */
+            overscroll-behavior-y: none;
         }
         
         .font-comic-header {
@@ -38,7 +38,17 @@
 
         .comic-border {
             border: 3px solid black;
-            box-shadow: 5px 5px 0px rgba(0,0,0,1);
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+        }
+
+        .comic-btn {
+            border: 3px solid black;
+            box-shadow: 4px 4px 0px rgba(0,0,0,1);
+            transition: all 0.1s;
+        }
+        .comic-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px rgba(0,0,0,1);
         }
 
         .comic-panel {
@@ -48,7 +58,6 @@
             overflow: hidden;
         }
 
-        /* Burbuja de diálogo */
         .speech-bubble {
             position: relative;
             background: #fff;
@@ -70,172 +79,208 @@
             margin-bottom: -20px;
         }
 
-        .plop-anim {
-            animation: plop 0.5s ease-out;
-        }
-
-        @keyframes plop {
-            0% { transform: scale(0) rotate(-180deg); }
-            80% { transform: scale(1.2) rotate(10deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
         /* Estilo papel periódico viejo */
         .hocicon-paper {
             background-color: #fdfbf7;
             background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
         }
+
+        /* Animaciones */
+        @keyframes spin-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 3s linear infinite;
+        }
+
+        .hidden-tab {
+            display: none;
+        }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-start pt-safe">
+<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-start pt-safe bg-gray-200">
 
     <!-- Header Diario El Hocicón -->
-    <header class="w-full max-w-md bg-yellow-400 border-b-4 border-black p-2 text-center shadow-lg z-10">
+    <header class="w-full max-w-md bg-yellow-400 border-b-4 border-black p-2 text-center shadow-lg z-20 shrink-0">
         <div class="flex justify-between items-center border-b-2 border-black pb-1 mb-1">
-            <span class="text-xs font-bold uppercase">Fundado por Yayita</span>
-            <span class="text-xs font-bold uppercase">Precio: ¡Un ojo de la cara!</span>
+            <span class="text-xs font-bold uppercase">Dir: Yayita</span>
+            <span class="text-xs font-bold uppercase" id="header-date">...</span>
         </div>
-        <h1 class="font-comic-header text-5xl text-red-600 drop-shadow-md transform -rotate-1">EL HOCICÓN</h1>
-        <p class="font-bold text-sm uppercase tracking-widest">"Pobre pero honrado"</p>
-        <div class="mt-1 text-xs font-bold bg-black text-white inline-block px-2 py-0.5 rounded transform rotate-1">
-            EDICIÓN ESPECIAL: EL CLIMA
+        <h1 class="font-comic-header text-5xl text-red-600 drop-shadow-md transform -rotate-1 cursor-pointer" onclick="switchTab('weather')">EL HOCICÓN</h1>
+        <div class="flex justify-center items-center space-x-2">
+            <p class="font-bold text-sm uppercase tracking-widest">"Pobre pero honrado"</p>
         </div>
     </header>
 
-    <!-- Contenido Principal (Estilo Página de Cómic) -->
-    <main class="flex-1 w-full max-w-md p-2 overflow-y-auto pb-20 space-y-3 hocicon-paper">
+    <!-- Contenedor Principal con Scroll -->
+    <div class="flex-1 w-full max-w-md overflow-y-auto pb-20 hocicon-paper relative" id="main-container">
         
-        <!-- Panel 1: Ubicación y Fecha -->
-        <div class="comic-panel p-3 flex justify-between items-center bg-blue-100">
-            <div>
-                <h2 class="font-comic-header text-2xl text-black" id="location-name">Pelotillehue</h2>
-                <p class="text-sm font-bold" id="current-date">Cargando fecha...</p>
-            </div>
-            <div class="bg-yellow-300 border-2 border-black p-2 rounded-full">
-                <i data-lucide="map-pin" class="w-6 h-6 text-black"></i>
-            </div>
-        </div>
-
-        <!-- Panel 2: El Clima Principal (Condorito) -->
-        <div class="comic-panel h-64 flex flex-col items-center justify-center bg-white relative">
-            <!-- Burbuja de dialogo -->
-            <div class="speech-bubble p-4 mb-4 w-11/12 text-center shadow-lg z-10 absolute top-2">
-                <p class="text-lg font-bold uppercase italic" id="condorito-phrase">
-                    "¡Recorcholis! Déjame ver cómo está el tiempo..."
-                </p>
-            </div>
-
-            <!-- Visualización del Clima -->
-            <div class="mt-20 flex items-center justify-center space-x-4 z-0">
-                <div id="weather-icon-container" class="transform scale-150 text-black">
-                    <i data-lucide="loader" class="animate-spin w-12 h-12"></i>
-                </div>
-                <div class="text-center">
-                    <span id="temp-current" class="font-comic-header text-6xl block leading-none">--°</span>
-                    <span id="weather-desc" class="text-sm font-bold bg-black text-white px-2 py-1 transform -rotate-2 inline-block mt-1">
-                        Consultando...
-                    </span>
-                </div>
-            </div>
-
-            <!-- Decoración "Plop!" (Oculta por defecto) -->
-            <div id="plop-text" class="hidden absolute bottom-2 right-2 font-comic-header text-4xl text-red-600 transform -rotate-12 z-20">
-                ¡PLOP!
-            </div>
-        </div>
-
-        <!-- Tira Cómica de Detalles (Grid) -->
-        <div class="grid grid-cols-2 gap-3">
+        <!-- ======================= -->
+        <!-- TAB 1: CLIMA (PRINCIPAL) -->
+        <!-- ======================= -->
+        <main id="tab-weather" class="p-2 space-y-3">
             
-            <!-- Panel 3: Pepe Cortisona (Máxima/Mínima) -->
-            <div class="comic-panel p-2 bg-red-50 flex flex-col items-center">
-                <div class="w-full border-b-2 border-black mb-1 text-center bg-red-200">
-                    <span class="font-bold text-xs uppercase">Saco de Plomo Informa</span>
+            <!-- Panel Ubicación y Guardar -->
+            <div class="comic-panel p-2 flex justify-between items-center bg-blue-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div class="flex-1">
+                    <h2 class="font-comic-header text-2xl text-black leading-none" id="location-name">Pelotillehue</h2>
+                    <p class="text-xs font-bold text-gray-600 truncate" id="location-coords">GPS Detectado</p>
                 </div>
-                <div class="flex justify-around w-full mt-2">
-                    <div class="text-center">
-                        <i data-lucide="arrow-up" class="w-5 h-5 mx-auto text-red-500"></i>
-                        <span class="font-bold text-xl" id="temp-max">--°</span>
-                        <div class="text-xs">Máx</div>
+                <button onclick="toggleSaveLocation()" id="btn-save-loc" class="bg-yellow-400 hover:bg-yellow-300 border-2 border-black p-2 rounded-full transition-colors">
+                    <i data-lucide="star" class="w-6 h-6 text-black" id="icon-star"></i>
+                </button>
+            </div>
+
+            <!-- Panel Clima Condorito -->
+            <div class="comic-panel h-64 flex flex-col items-center justify-center bg-white relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <!-- Burbuja -->
+                <div class="speech-bubble p-3 mb-2 w-11/12 text-center shadow-md z-10 absolute top-2 bg-white">
+                    <p class="text-base font-bold uppercase italic leading-tight" id="condorito-phrase">
+                        "¡Recorcholis! Buscando el tiempo..."
+                    </p>
+                </div>
+
+                <!-- Visualización -->
+                <div class="mt-16 flex items-center justify-center space-x-4 z-0">
+                    <div id="weather-icon-container" class="transform scale-125 text-black">
+                        <i data-lucide="loader" class="animate-spin w-12 h-12"></i>
                     </div>
-                    <div class="w-0.5 h-10 bg-black"></div>
                     <div class="text-center">
-                        <i data-lucide="arrow-down" class="w-5 h-5 mx-auto text-blue-500"></i>
-                        <span class="font-bold text-xl" id="temp-min">--°</span>
-                        <div class="text-xs">Mín</div>
+                        <span id="temp-current" class="font-comic-header text-6xl block leading-none">--°</span>
+                        <span id="weather-desc" class="text-xs font-bold bg-black text-white px-2 py-1 transform -rotate-2 inline-block mt-1">
+                            Cargando...
+                        </span>
+                    </div>
+                </div>
+
+                <!-- PLOP -->
+                <div id="plop-text" class="hidden absolute bottom-2 right-2 font-comic-header text-4xl text-red-600 transform -rotate-12 z-20">
+                    ¡PLOP!
+                </div>
+            </div>
+
+            <!-- Detalles (Grid) -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="comic-panel p-2 bg-red-50 flex flex-col items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div class="w-full border-b-2 border-black mb-1 text-center bg-red-200">
+                        <span class="font-bold text-[10px] uppercase">Pepe Cortisona</span>
+                    </div>
+                    <div class="flex justify-around w-full mt-1">
+                        <div class="text-center">
+                            <span class="block text-xs font-bold">Máx</span>
+                            <span class="font-comic-header text-xl" id="temp-max">--°</span>
+                        </div>
+                        <div class="w-0.5 h-8 bg-black self-center"></div>
+                        <div class="text-center">
+                            <span class="block text-xs font-bold">Mín</span>
+                            <span class="font-comic-header text-xl" id="temp-min">--°</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comic-panel p-2 bg-green-50 flex flex-col items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                     <div class="w-full border-b-2 border-black mb-1 text-center bg-green-200">
+                        <span class="font-bold text-[10px] uppercase">Coné Informa</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 w-full mt-1 text-xs font-bold">
+                        <div class="flex items-center">
+                            <i data-lucide="wind" class="w-3 h-3 mr-1"></i>
+                            <span id="wind-speed">--</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="droplets" class="w-3 h-3 mr-1"></i>
+                            <span id="humidity">--%</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel 4: Coné (Viento/Lluvia) -->
-            <div class="comic-panel p-2 bg-green-50 flex flex-col items-center">
-                 <div class="w-full border-b-2 border-black mb-1 text-center bg-green-200">
-                    <span class="font-bold text-xs uppercase">Detalles de Coné</span>
+            <button onclick="fetchCurrentLocationWeather()" class="w-full comic-btn bg-black text-white font-comic-header text-xl py-3 mt-4 active:bg-gray-800 flex justify-center items-center gap-2">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                USAR MI GPS
+            </button>
+        </main>
+
+        <!-- ======================= -->
+        <!-- TAB 2: BÚSQUEDA (NUEVO) -->
+        <!-- ======================= -->
+        <main id="tab-search" class="hidden-tab p-2 space-y-4">
+            
+            <!-- Título Sección -->
+            <div class="bg-yellow-300 border-2 border-black p-2 transform rotate-1 shadow-md text-center">
+                <h2 class="font-comic-header text-2xl">AGENCIA DE VIAJES</h2>
+                <p class="text-xs font-bold uppercase">"Viaje ahora, pague el día del níspero"</p>
+            </div>
+
+            <!-- Barra de Búsqueda -->
+            <div class="comic-panel p-3 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <label class="block text-sm font-bold mb-1">¿A dónde quieres ir?</label>
+                <div class="flex gap-2">
+                    <input type="text" id="search-input" placeholder="Ej: Santiago, Madrid..." 
+                           class="flex-1 border-2 border-black p-2 font-bold uppercase outline-none focus:bg-yellow-50"
+                           onkeypress="handleEnter(event)">
+                    <button onclick="searchLocation()" class="bg-red-500 text-white border-2 border-black p-2 hover:bg-red-600 transition-colors">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-2 w-full mt-1 text-xs font-bold">
-                    <div class="flex items-center">
-                        <i data-lucide="wind" class="w-3 h-3 mr-1"></i>
-                        <span id="wind-speed">-- km/h</span>
-                    </div>
-                    <div class="flex items-center">
-                        <i data-lucide="droplets" class="w-3 h-3 mr-1"></i>
-                        <span id="humidity">--%</span>
-                    </div>
-                    <div class="col-span-2 text-center mt-1 border-t border-black pt-1 italic text-gray-600" id="rain-chance">
-                        Prob. Lluvia: --%
+                <!-- Loader de Búsqueda -->
+                <div id="search-loader" class="hidden mt-2 text-center text-sm font-bold flex items-center justify-center gap-2">
+                    <i data-lucide="loader" class="animate-spin w-4 h-4"></i> Buscando en el mapa...
+                </div>
+            </div>
+
+            <!-- Resultados Búsqueda -->
+            <div id="search-results-container" class="hidden space-y-2">
+                <h3 class="font-comic-header text-xl ml-1">Resultados:</h3>
+                <div id="search-results-list" class="space-y-2">
+                    <!-- Items inyectados vía JS -->
+                </div>
+            </div>
+
+            <!-- Ubicaciones Guardadas -->
+            <div class="mt-4">
+                <div class="flex justify-between items-end border-b-4 border-black mb-2 pb-1">
+                    <h3 class="font-comic-header text-2xl">MIS DESTINOS</h3>
+                    <i data-lucide="bookmark" class="w-5 h-5 mb-1"></i>
+                </div>
+                
+                <div id="saved-locations-list" class="grid grid-cols-1 gap-2">
+                    <!-- Items inyectados vía JS -->
+                    <div class="text-center py-4 text-gray-500 italic font-bold border-2 border-dashed border-gray-400 rounded">
+                        No hay lugares guardados.<br>¡Busca uno, pajarraco!
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Botón de Actualizar -->
-        <button onclick="fetchWeather()" class="w-full bg-black text-yellow-400 font-comic-header text-2xl py-3 border-4 border-yellow-400 shadow-lg active:transform active:scale-95 transition-transform mb-6">
-            ¡ACTUALIZAR, ROTO!
+        </main>
+    </div>
+
+    <!-- Navegación Inferior -->
+    <nav class="w-full max-w-md bg-white border-t-4 border-black z-30 flex justify-around p-2 pb-safe shadow-lg">
+        <button onclick="switchTab('weather')" id="nav-weather" class="flex flex-col items-center w-1/2 p-2 rounded transition-colors bg-yellow-100">
+            <i data-lucide="cloud-sun" class="w-6 h-6 mb-1"></i>
+            <span class="font-comic-header text-lg leading-none">EL CLIMA</span>
         </button>
-
-    </main>
-
-    <!-- PWA Manifest Generation (Inline) -->
-    <script>
-        // Generar Manifiesto dinámicamente para que sea un solo archivo
-        const manifest = {
-            "name": "Clima Hocicón",
-            "short_name": "Clima",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#f0f0f0",
-            "theme_color": "#FFD700",
-            "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/826/826955.png", // Icono genérico de sol tipo cómic
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/826/826955.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        };
-        const stringManifest = JSON.stringify(manifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-    </script>
+        <div class="w-1 h-10 bg-black self-center rounded"></div>
+        <button onclick="switchTab('search')" id="nav-search" class="flex flex-col items-center w-1/2 p-2 rounded transition-colors opacity-60 hover:bg-gray-100">
+            <i data-lucide="search" class="w-6 h-6 mb-1"></i>
+            <span class="font-comic-header text-lg leading-none">BUSCAR</span>
+        </button>
+    </nav>
 
     <!-- Lógica de la App -->
     <script>
-        // Inicializar iconos
-        lucide.createIcons();
+        // --- Estado Global ---
+        let currentWeatherData = null;
+        let currentLocation = { name: "Pelotillehue", lat: null, lon: null };
+        let savedLocations = JSON.parse(localStorage.getItem('hocicon_locations')) || [];
 
-        // Elementos DOM
+        // --- Elementos DOM ---
         const els = {
-            loc: document.getElementById('location-name'),
-            date: document.getElementById('current-date'),
+            locName: document.getElementById('location-name'),
+            locCoords: document.getElementById('location-coords'),
+            dateHeader: document.getElementById('header-date'),
             phrase: document.getElementById('condorito-phrase'),
             tempCurrent: document.getElementById('temp-current'),
             weatherDesc: document.getElementById('weather-desc'),
@@ -243,129 +288,289 @@
             tempMin: document.getElementById('temp-min'),
             wind: document.getElementById('wind-speed'),
             humidity: document.getElementById('humidity'),
-            rain: document.getElementById('rain-chance'),
             iconContainer: document.getElementById('weather-icon-container'),
-            plop: document.getElementById('plop-text')
+            plop: document.getElementById('plop-text'),
+            
+            // Search els
+            searchInput: document.getElementById('search-input'),
+            searchLoader: document.getElementById('search-loader'),
+            resultsContainer: document.getElementById('search-results-container'),
+            resultsList: document.getElementById('search-results-list'),
+            savedList: document.getElementById('saved-locations-list'),
+            
+            // Icons
+            saveIcon: document.getElementById('icon-star'),
+            btnSave: document.getElementById('btn-save-loc')
         };
 
-        // Frases estilo Condorito según código WMO
+        // --- Configuración Inicial ---
+        lucide.createIcons();
+        updateDate();
+        renderSavedLocations();
+        
+        // Cargar última ubicación vista o GPS
+        const lastLoc = JSON.parse(localStorage.getItem('hocicon_last_loc'));
+        if(lastLoc) {
+            fetchWeather(lastLoc.lat, lastLoc.lon, lastLoc.name);
+        } else {
+            fetchCurrentLocationWeather();
+        }
+
+        // --- Funciones de Navegación ---
+        function switchTab(tab) {
+            const weatherTab = document.getElementById('tab-weather');
+            const searchTab = document.getElementById('tab-search');
+            const navWeather = document.getElementById('nav-weather');
+            const navSearch = document.getElementById('nav-search');
+
+            if(tab === 'weather') {
+                weatherTab.classList.remove('hidden-tab');
+                searchTab.classList.add('hidden-tab');
+                navWeather.classList.add('bg-yellow-100');
+                navWeather.classList.remove('opacity-60');
+                navSearch.classList.remove('bg-yellow-100');
+                navSearch.classList.add('opacity-60');
+            } else {
+                weatherTab.classList.add('hidden-tab');
+                searchTab.classList.remove('hidden-tab');
+                navSearch.classList.add('bg-yellow-100');
+                navSearch.classList.remove('opacity-60');
+                navWeather.classList.remove('bg-yellow-100');
+                navWeather.classList.add('opacity-60');
+            }
+        }
+
+        function handleEnter(e) {
+            if(e.key === 'Enter') searchLocation();
+        }
+
+        // --- Lógica del Clima (Condorito Style) ---
         const phrases = {
-            0: "¡Reflauta! El cielo está más limpio que mi billetera.", // Despejado
-            1: "¡Tome Pin y haga Pun! Un día agradable compadre.", // Mayormente despejado
-            2: "Se está nublando, igual que el juicio de Pepe Cortisona.", // Nublado
-            3: "¡Está más tapado que oreja de sordo! (Nublado)", // Cubierto
-            45: "No se ve ni una cuestión con esta niebla.", // Niebla
-            48: "Niebla con escarcha... ¡Qué frío, por la mugre!",
-            51: "Está chispeando... apenas.", // Llovizna
-            61: "¡Exijo una explicación! Se largó a llover suave.", // Lluvia leve
-            63: "¡Afírmate Cabrito! Llueve moderado.", // Lluvia moderada
-            65: "¡Recorcholis! Está lloviendo a cántaros.", // Lluvia fuerte
-            80: "¡Arranca Washington! Se vienen chaparrones.", // Lluvia intensa
-            95: "¡Santa Bárbara bendita! Tormenta eléctrica.", // Tormenta
-            96: "¡Ay caramba! Granizo... a esconderse al bar.", // Granizo
+            0: "¡Reflauta! Despejado, ideal para una siesta.",
+            1: "¡Tome Pin y haga Pun! Un día agradable.",
+            2: "Se nubla, igual que el juicio de Pepe Cortisona.",
+            3: "Más tapado que oreja de sordo.",
+            45: "No se ve ni una cuestión con esta niebla.",
+            51: "Está chispeando... apenas.",
+            61: "¡Exijo una explicación! Lluvia suave.",
+            63: "¡Afírmate Cabrito! Llueve moderado.",
+            65: "¡Recorcholis! Llueve a cántaros.",
+            80: "¡Arranca Washington! Chaparrones fuertes.",
+            95: "¡Santa Bárbara! Tormenta eléctrica.",
         };
 
         function getCondoritoPhrase(code, temp) {
-            // Overrides por temperatura extrema
-            if (temp > 30) return "¡Me aso, compadre! ¡Tráiganme una Bilz!";
+            if (temp > 32) return "¡Me aso! ¡Tráiganme una Bilz helada!";
             if (temp < 5) return "¡Estoy tiritando como canasto de guatitas!";
-            
-            return phrases[code] || phrases[code] || "El tiempo está loco, igual que el Roto Quezada.";
+            return phrases[code] || "El tiempo está loco, como el Roto Quezada.";
         }
 
         function getWeatherIcon(code) {
-            // Mapeo simple de códigos WMO a iconos Lucide
             if (code === 0) return 'sun';
-            if (code >= 1 && code <= 3) return 'cloud-sun';
-            if (code >= 45 && code <= 48) return 'cloud-fog';
-            if (code >= 51 && code <= 67) return 'cloud-rain';
-            if (code >= 71 && code <= 77) return 'snowflake';
-            if (code >= 80 && code <= 82) return 'cloud-drizzle';
+            if (code <= 3) return 'cloud-sun';
+            if (code <= 48) return 'cloud-fog';
+            if (code <= 67) return 'cloud-rain';
+            if (code <= 77) return 'snowflake';
+            if (code <= 82) return 'cloud-drizzle';
             if (code >= 95) return 'cloud-lightning';
-            return 'help-circle';
+            return 'cloud';
         }
 
         function updateDate() {
             const now = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            els.date.textContent = now.toLocaleDateString('es-CL', options);
+            els.dateHeader.textContent = now.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
         }
 
-        async function fetchWeather() {
-            els.weatherDesc.textContent = "Buscando satélite...";
+        // --- API Calls ---
+
+        // 1. Obtener Clima
+        async.function = fetchWeather; // Reference fix
+        async function fetchWeather(lat, lon, nameOverride = null) {
+            // UI Loading state
+            els.phrase.textContent = "Llamando al satélite...";
+            els.weatherDesc.textContent = "Cargando...";
+            els.iconContainer.innerHTML = `<i data-lucide="loader" class="animate-spin w-12 h-12"></i>`;
+            lucide.createIcons();
             els.plop.classList.add('hidden');
-            
+
+            try {
+                // Fetch
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=relativehumidity_2m&timezone=auto`);
+                const data = await res.json();
+
+                if(data.error) throw new Error("Error API");
+
+                // Update State
+                currentLocation = { 
+                    name: nameOverride || data.timezone.split('/')[1].replace('_', ' '), 
+                    lat: lat, 
+                    lon: lon 
+                };
+                
+                // Save last seen
+                localStorage.setItem('hocicon_last_loc', JSON.stringify(currentLocation));
+                checkIfSaved();
+
+                // Render UI
+                const current = data.current_weather;
+                const daily = data.daily;
+
+                els.tempCurrent.textContent = `${Math.round(current.temperature)}°`;
+                els.tempMax.textContent = `${Math.round(daily.temperature_2m_max[0])}°`;
+                els.tempMin.textContent = `${Math.round(daily.temperature_2m_min[0])}°`;
+                els.wind.textContent = `${current.windspeed} km/h`;
+                
+                const hourIndex = new Date().getHours();
+                els.humidity.textContent = `${data.hourly.relativehumidity_2m[hourIndex] || '--'}%`;
+                
+                els.locName.textContent = currentLocation.name;
+                els.locCoords.textContent = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+
+                const wmoCode = current.weathercode;
+                els.phrase.textContent = `"${getCondoritoPhrase(wmoCode, current.temperature)}"`;
+                els.weatherDesc.textContent = "Actualizado";
+                
+                const iconName = getWeatherIcon(wmoCode);
+                els.iconContainer.innerHTML = `<i data-lucide="${iconName}" class="w-24 h-24 text-black drop-shadow-md"></i>`;
+                lucide.createIcons();
+
+            } catch (err) {
+                console.error(err);
+                els.phrase.textContent = "¡Plop! Se cayó el sistema.";
+                els.plop.classList.remove('hidden');
+            }
+        }
+
+        // 2. Usar GPS
+        function fetchCurrentLocationWeather() {
             if (!navigator.geolocation) {
-                alert("¡Plop! Tu dispositivo no tiene GPS.");
+                alert("Sin GPS no hay paraíso.");
+                return;
+            }
+            // Switch to weather tab if not there
+            switchTab('weather');
+            els.phrase.textContent = "Buscando ubicación...";
+            
+            navigator.geolocation.getCurrentPosition(
+                (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "Tu Ubicación"),
+                (err) => {
+                    alert("¡Plop! Activa el GPS para usar esta función.");
+                    fetchWeather(-33.45, -70.66, "Santiago (Default)"); // Fallback
+                }
+            );
+        }
+
+        // 3. Buscar Ciudad (Geocoding API)
+        async function searchLocation() {
+            const query = els.searchInput.value.trim();
+            if(!query) return;
+
+            els.searchLoader.classList.remove('hidden');
+            els.resultsContainer.classList.add('hidden');
+            els.resultsList.innerHTML = '';
+
+            try {
+                const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=es&format=json`);
+                const data = await res.json();
+
+                if(!data.results || data.results.length === 0) {
+                    alert("¡Exijo una explicación! No encontré ese lugar.");
+                } else {
+                    displaySearchResults(data.results);
+                }
+
+            } catch (err) {
+                alert("Error al buscar. ¿Tienes internet?");
+            } finally {
+                els.searchLoader.classList.add('hidden');
+            }
+        }
+
+        function displaySearchResults(results) {
+            els.resultsContainer.classList.remove('hidden');
+            els.resultsList.innerHTML = results.map(city => `
+                <div onclick="selectLocation('${city.name}', ${city.latitude}, ${city.longitude}, '${city.country_code}')" 
+                     class="bg-white border-2 border-black p-2 cursor-pointer hover:bg-yellow-100 flex justify-between items-center transition-colors">
+                    <div>
+                        <div class="font-bold text-lg leading-none">${city.name}</div>
+                        <div class="text-xs text-gray-600 font-bold uppercase">${city.admin1 || ''}, ${city.country || ''}</div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function selectLocation(name, lat, lon, countryCode) {
+            // Formatear nombre bonito
+            const fullName = `${name} (${countryCode})`;
+            els.searchInput.value = '';
+            els.resultsContainer.classList.add('hidden');
+            switchTab('weather');
+            fetchWeather(lat, lon, fullName);
+        }
+
+        // --- Gestión de Favoritos ---
+
+        function toggleSaveLocation() {
+            const index = savedLocations.findIndex(l => l.name === currentLocation.name);
+            
+            if(index >= 0) {
+                // Eliminar
+                savedLocations.splice(index, 1);
+            } else {
+                // Guardar
+                savedLocations.push(currentLocation);
+            }
+            
+            localStorage.setItem('hocicon_locations', JSON.stringify(savedLocations));
+            checkIfSaved();
+            renderSavedLocations();
+        }
+
+        function checkIfSaved() {
+            const isSaved = savedLocations.some(l => l.name === currentLocation.name);
+            if(isSaved) {
+                els.saveIcon.classList.add('fill-current');
+                els.btnSave.classList.add('bg-yellow-500');
+            } else {
+                els.saveIcon.classList.remove('fill-current');
+                els.btnSave.classList.remove('bg-yellow-500');
+            }
+        }
+
+        function deleteLocation(e, name) {
+            e.stopPropagation(); // Evitar click en el padre
+            savedLocations = savedLocations.filter(l => l.name !== name);
+            localStorage.setItem('hocicon_locations', JSON.stringify(savedLocations));
+            renderSavedLocations();
+            checkIfSaved(); // Si estamos viendo el que borramos
+        }
+
+        function renderSavedLocations() {
+            if(savedLocations.length === 0) {
+                els.savedList.innerHTML = `
+                    <div class="text-center py-4 text-gray-500 italic font-bold border-2 border-dashed border-gray-400 rounded">
+                        No hay lugares guardados.<br>¡Busca uno, pajarraco!
+                    </div>`;
                 return;
             }
 
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                
-                // Actualizar nombre de ubicación (mock o reverse geo simple si fuera necesario, usaremos Pelotillehue/Coord por ahora)
-                // Para mantenerlo simple y sin keys, usamos el nombre de la zona horaria o "Tu Ubicación"
-                
-                try {
-                    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&hourly=relativehumidity_2m,surface_pressure&timezone=auto`);
-                    const data = await response.json();
-
-                    if(data.error) throw new Error("Error API");
-
-                    const current = data.current_weather;
-                    const daily = data.daily;
-                    
-                    // Actualizar UI
-                    els.tempCurrent.textContent = `${Math.round(current.temperature)}°`;
-                    els.tempMax.textContent = `${Math.round(daily.temperature_2m_max[0])}°`;
-                    els.tempMin.textContent = `${Math.round(daily.temperature_2m_min[0])}°`;
-                    els.wind.textContent = `${current.windspeed} km/h`;
-                    
-                    // Humedad (tomamos la hora actual aproximada)
-                    const hourIndex = new Date().getHours();
-                    const humidity = data.hourly.relativehumidity_2m[hourIndex] || "--";
-                    els.humidity.textContent = `${humidity}% Hum.`;
-                    
-                    // Probabilidad lluvia hoy
-                    els.rain.textContent = `Prob. Lluvia: ${daily.precipitation_probability_max[0]}%`;
-
-                    // Icono y Descripción
-                    const wmoCode = current.weathercode;
-                    const iconName = getWeatherIcon(wmoCode);
-                    els.iconContainer.innerHTML = `<i data-lucide="${iconName}" class="w-24 h-24 text-black drop-shadow-md"></i>`;
-                    lucide.createIcons();
-                    
-                    els.weatherDesc.textContent = "Reporte Actualizado";
-                    
-                    // Frase de Condorito
-                    els.phrase.textContent = `"${getCondoritoPhrase(wmoCode, current.temperature)}"`;
-
-                    // Nombre de ubicación (Obtenido de timezone simplificado)
-                    const zone = data.timezone.split('/')[1] || "Pelotillehue";
-                    els.loc.textContent = zone.replace('_', ' ');
-
-                } catch (error) {
-                    els.phrase.textContent = "¡Exijo una explicación! No pude ver el clima.";
-                    els.plop.classList.remove('hidden');
-                    console.error(error);
-                }
-
-            }, (error) => {
-                els.phrase.textContent = "¡Plop! Activa el GPS, pajarraco.";
-                els.plop.classList.remove('hidden');
-            });
+            els.savedList.innerHTML = savedLocations.map(loc => `
+                <div class="comic-panel p-2 flex justify-between items-center bg-yellow-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all cursor-pointer"
+                     onclick="switchTab('weather'); fetchWeather(${loc.lat}, ${loc.lon}, '${loc.name}')">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i>
+                        <span class="font-bold text-sm uppercase">${loc.name}</span>
+                    </div>
+                    <button onclick="deleteLocation(event, '${loc.name}')" class="text-red-600 p-1 hover:bg-red-100 rounded">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
         }
 
-        // Iniciar
-        updateDate();
-        fetchWeather();
-
-        // Service Worker ficticio para criterios de PWA instalable
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
     </script>
 </body>
-
 </html>
